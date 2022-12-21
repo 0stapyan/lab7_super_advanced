@@ -8,6 +8,7 @@ parser.add_argument('year', help="")
 parser.add_argument('--output', required=False, help="")
 parser.add_argument('--total', action="store_true", required=False, help="")
 parser.add_argument('--overall', nargs='+', required=False, help='')
+parser.add_argument('--interactive', required=False, help='')
 args = parser.parse_args()
 filename = args.filename
 medals = args.medals
@@ -16,6 +17,7 @@ year = args.year
 output = args.output
 total = args.total
 overall = args.overall
+interactive = args.interactive
 def task1(filename, medals, country, year, output):
     if medals:
         output_file = None
@@ -117,8 +119,60 @@ def task3(filename,overall):
                         else:
                             results[data[9]] += 1
             print(country, max(results, key=results.get), max(results.values()))
+def task4(filename, interactive):
+    if interactive:
+        first_line = True
+        results = {}
+        user_input = input("please enter NOC")
+        with open(filename, "r") as file:
+            best_year = 0
+            olymp = []
+            worst_year = 0
+            year1 = 2023
+            best_result = 0
+            worst_result = 100000
+            Gold = 0
+            Silver = 0
+            Bronze = 0
+            city1 = ""
+            for line in file:
+                data = line.strip().split("\t")
+                if first_line:
+                    first_line = False
+                    continue
+                if user_input == data[7] or user_input == data[6]:
+                    if data[9] not in olymp:
+                        olymp.append(data[9])
+                    if data[9] not in results:
+                        results[data[9]] = 0
+                    if year1 > int(data[9]):
+                        year1 = int(data[9])
+                        city1 = data[11]
+                    if data[-1] != "NA":
+                        results[data[9]] += 1
+                        if data[-1] == "Gold":
+                            Gold += 1
+                        elif data[-1] == "Silver":
+                            Silver += 1
+                        elif data[-1] == "Bronze":
+                            Bronze += 1
+        for i in results:
+            if results[i] > best_result:
+                best_result = results.get(i)
+                best_year = i
+            if results[i] < worst_result:
+                worst_result = results.get(i)
+                worst_year = i
+        print(f"Best - {best_year} - {best_result} medals")
+        print(f"Worst - {worst_year} - {worst_result} medals")
+        print(f"avr gold {Gold//len(olymp)} ")
+        print(f"avr silver {Silver//len(olymp)} ")
+        print(f"avr bronze {Bronze//len(olymp)} ")
+        print(city1)
+        print(year1)
 
 task1(filename, medals, country, year, output)
 total_medals(medals, output)
 task2(filename, year, total)
 task3(filename, overall)
+task4(filename, interactive)
