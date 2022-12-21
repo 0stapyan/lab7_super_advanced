@@ -7,6 +7,7 @@ parser.add_argument('country', help="")
 parser.add_argument('year', help="")
 parser.add_argument('--output', required=False, help="")
 parser.add_argument('--total', action="store_true", required=False, help="")
+parser.add_argument('--overall', nargs='+', required=False, help='')
 args = parser.parse_args()
 filename = args.filename
 medals = args.medals
@@ -14,6 +15,7 @@ country = args.country
 year = args.year
 output = args.output
 total = args.total
+overall = args.overall
 def task1(filename, medals, country, year, output):
     if medals:
         output_file = None
@@ -98,7 +100,25 @@ def task2(filename, year, total):
             sorted_countries = sorted(countries.items(), key=lambda x: sum(x[1]), reverse=True)
             for i in sorted_countries:
                 print(i[0], " ", i[1][0], "Gold", i[1][1], "Silver", i[1][2], "Bronze", " ", "Total", sum(i[1]))
+def task3(filename,overall):
+    if overall:
+        first_line = True
+        for country in overall:
+            results = {}
+            with open(filename, "r") as file:
+                for line in file:
+                    data = line.strip().split("\t")
+                    if first_line:
+                        first_line = False
+                        continue
+                    if country == data[6] and (data[-1] != "NA"):
+                        if data[9] not in results:
+                            results[data[9]] = 1
+                        else:
+                            results[data[9]] += 1
+            print(country, max(results, key=results.get), max(results.values()))
 
 task1(filename, medals, country, year, output)
 total_medals(medals, output)
 task2(filename, year, total)
+task3(filename, overall)
